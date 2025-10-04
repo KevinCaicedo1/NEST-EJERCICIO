@@ -1,0 +1,299 @@
+{
+	"info": {
+		"_postman_id": "8d5f6a58-a764-43d7-b556-1b1090ad1d23",
+		"name": "NEST STAR WARS ENDPOINT",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24824212"
+	},
+	"item": [
+		{
+			"name": "Crea una nueva película ADMIN.",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNjMwMDdhNi04ODgxLTRlNzYtYjdkNS1kNzU1YTBjZjY2YzEiLCJlbWFpbCI6ImtldmluQHJlYmVscy5leGFtcGxlIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzU5NTU5MDQ1LCJleHAiOjE3NTk2NDU0NDV9.yOOXFrc4gfYtC-cLGr71DH2pYsdRMqkqzylZE8EB2aU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"title\": \"A New Hope\",\r\n  \"episode_id\": 4,\r\n  \"opening_crawl\": \"It is a period of civil war...\",\r\n  \"director\": \"George Lucas\",\r\n  \"producer\": \"Gary Kurtz, Rick McCallum\",\r\n  \"release_date\": \"1977-05-25\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3002/movies",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"movies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtiene película específica rol USER.",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1Nzc0OTljMy01YzFlLTRhZjEtYWMyZC05ZDA4MDMwOWEwOWQiLCJlbWFpbCI6Imx1a2VAcmViZWxzLmV4YW1wbGUiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc1OTU1ODM2OSwiZXhwIjoxNzU5NjQ0NzY5fQ.XulJISEBkMr_pdKTEMnBSJnYJssgb9-v6SSWARe8y4c",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/movies/37a3724b-a389-4128-9ba6-096572a4a4a5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"movies",
+						"37a3724b-a389-4128-9ba6-096572a4a4a5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualiza los datos de una película existente. ADMIN.",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNjMwMDdhNi04ODgxLTRlNzYtYjdkNS1kNzU1YTBjZjY2YzEiLCJlbWFpbCI6ImtldmluQHJlYmVscy5leGFtcGxlIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzU5NTU5MDQ1LCJleHAiOjE3NTk2NDU0NDV9.yOOXFrc4gfYtC-cLGr71DH2pYsdRMqkqzylZE8EB2aU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"title\": \"A New edit peli\",\r\n  \"episode_id\": 4,\r\n  \"opening_crawl\": \"It is a period of civil war...\",\r\n  \"director\": \"George Lucas\",\r\n  \"producer\": \"Gary Kurtz, Rick McCallum\",\r\n  \"release_date\": \"1977-05-25\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3002/movies/37a3724b-a389-4128-9ba6-096572a4a4a5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"movies",
+						"37a3724b-a389-4128-9ba6-096572a4a4a5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtiene un listado paginado de todas las películas",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3002/movies?page=1&limit=10",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"movies"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "limit",
+							"value": "10"
+						}
+					]
+				},
+				"description": "Generated from cURL: curl -X 'GET' \\\r\n  'http://localhost:3002/movies?page=1&limit=10' \\\r\n  -H 'accept: application/json'"
+			},
+			"response": []
+		},
+		{
+			"name": "Elimina una película. Requiere rol ADMIN.",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNjMwMDdhNi04ODgxLTRlNzYtYjdkNS1kNzU1YTBjZjY2YzEiLCJlbWFpbCI6ImtldmluQHJlYmVscy5leGFtcGxlIiwicm9sZSI6IkFETUlOIiwiaWF0IjoxNzU5NTU5MDQ1LCJleHAiOjE3NTk2NDU0NDV9.yOOXFrc4gfYtC-cLGr71DH2pYsdRMqkqzylZE8EB2aU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/movies/37a3724b-a389-4128-9ba6-096572a4a4a5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"movies",
+						"37a3724b-a389-4128-9ba6-096572a4a4a5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CREAR USER ADMIN",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"kevin@rebels.example\",\r\n  \"password\": \"secret123\",\r\n  \"role\": \"ADMIN\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/auth/signup",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"auth",
+						"signup"
+					]
+				},
+				"description": "Generated from cURL: curl -X 'POST' \\\r\n  'http://localhost:3001/auth/signup' \\\r\n  -H 'accept: application/json' \\\r\n  -H 'Content-Type: application/json' \\\r\n  -d '{\r\n  \"email\": \"kevin@rebels.example\",\r\n  \"password\": \"secret123\",\r\n  \"role\": \"ADMIN\"\r\n}'"
+			},
+			"response": []
+		},
+		{
+			"name": "CREAR USER",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"kevin@rebels.example\",\r\n  \"password\": \"secret123\",\r\n  \"role\": \"USER\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/auth/signup",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"auth",
+						"signup"
+					]
+				},
+				"description": "Generated from cURL: curl -X 'POST' \\\r\n  'http://localhost:3001/auth/signup' \\\r\n  -H 'accept: application/json' \\\r\n  -H 'Content-Type: application/json' \\\r\n  -d '{\r\n  \"email\": \"kevin@rebels.example\",\r\n  \"password\": \"secret123\",\r\n  \"role\": \"ADMIN\"\r\n}'"
+			},
+			"response": []
+		},
+		{
+			"name": "login y obtencion de access token",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"kevin@rebels.example\",\r\n  \"password\": \"secret123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"auth",
+						"login"
+					]
+				},
+				"description": "Generated from cURL: curl -X 'POST' \\\r\n  'http://localhost:3001/auth/login' \\\r\n  -H 'accept: application/json' \\\r\n  -H 'Content-Type: application/json' \\\r\n  -d '{\r\n  \"email\": \"kevin@rebels.example\",\r\n  \"password\": \"secret123\"\r\n}'"
+			},
+			"response": []
+		}
+	]
+}

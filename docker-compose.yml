@@ -1,0 +1,117 @@
+services:
+  # ========================================
+  # AUTH SERVICE - Base de datos PostgreSQL
+  # ========================================
+  auth-postgres:
+    image: postgres:16-alpine
+    container_name: auth-postgres
+    environment:
+      POSTGRES_DB: authdb
+      POSTGRES_USER: authuser
+      POSTGRES_PASSWORD: authpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - auth_pgdata:/var/lib/postgresql/data
+      - ./auth-service/db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U authuser -d authdb"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - microservices-network
+
+  # ========================================
+  # AUTH SERVICE - Aplicación NestJS
+  # ========================================
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    environment:
+      PORT: 3001
+      NODE_ENV: production
+      DB_HOST: auth-postgres
+      DB_PORT: 5432
+      DB_NAME: authdb
+      DB_USER: authuser
+      DB_PASSWORD: authpass
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production-12345678
+      JWT_EXPIRES_IN: 24h
+    ports:
+      - "3001:3001"
+    depends_on:
+      auth-postgres:
+        condition: service_healthy
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  # ========================================
+  # MOVIES SERVICE - Base de datos PostgreSQL
+  # ========================================
+  movies-postgres:
+    image: postgres:16-alpine
+    container_name: movies-postgres
+    environment:
+      POSTGRES_DB: moviesdb
+      POSTGRES_USER: moviesuser
+      POSTGRES_PASSWORD: moviespass
+    ports:
+      - "5433:5432"
+    volumes:
+      - movies_pgdata:/var/lib/postgresql/data
+      - ./movies-service/db/movies/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U moviesuser -d moviesdb"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - microservices-network
+
+  # ========================================
+  # MOVIES SERVICE - Aplicación NestJS
+  # ========================================
+  movies-service:
+    build:
+      context: ./movies-service
+      dockerfile: Dockerfile
+    container_name: movies-service
+    environment:
+      PORT: 3002
+      NODE_ENV: production
+      DB_HOST: movies-postgres
+      DB_PORT: 5432
+      DB_USERNAME: moviesuser
+      DB_PASSWORD: moviespass
+      DB_NAME: moviesdb
+      DB_LOGGING: "false"
+      JWT_SECRET: your-jwt-secret-key-change-this-in-production-min-32-chars
+      JWT_EXPIRES_IN: 1d
+    ports:
+      - "3002:3002"
+    depends_on:
+      movies-postgres:
+        condition: service_healthy
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+# ========================================
+# NETWORKS
+# ========================================
+networks:
+  microservices-network:
+    driver: bridge
+
+# ========================================
+# VOLUMES
+# ========================================
+volumes:
+  auth_pgdata:
+    driver: local
+  movies_pgdata:
+    driver: local

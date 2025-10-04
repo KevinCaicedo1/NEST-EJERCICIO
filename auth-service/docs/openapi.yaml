@@ -1,0 +1,127 @@
+openapi: 3.0.3
+info:
+  title: Auth Service
+  version: 1.0.0
+  description: Servicio de autenticación y gestión de usuarios (signup/login con JWT)
+servers:
+  - url: http://localhost:3001
+    description: Dev
+tags:
+  - name: Auth
+    description: Registro y autenticación
+paths:
+  /auth/signup:
+    post:
+      tags: [Auth]
+      summary: Registro de usuario
+      operationId: authSignup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthSignupRequest'
+            examples:
+              default:
+                value:
+                  email: luke@rebels.example
+                  password: secret123
+                  role: USER
+      responses:
+        '201':
+          description: Usuario creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPublic'
+        '400':
+          description: Email ya registrado o datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login y obtención de access token (JWT)
+      operationId: authLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLoginRequest'
+      responses:
+        '200':
+          description: Token emitido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthLoginResponse'
+        '401':
+          description: Credenciales inválidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Role:
+      type: string
+      enum: [USER, ADMIN]
+      example: USER
+    UserPublic:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        role:
+          $ref: '#/components/schemas/Role'
+      required: [id, email, role]
+    AuthSignupRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        role:
+          $ref: '#/components/schemas/Role'
+      required: [email, password]
+    AuthLoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required: [email, password]
+    AuthLoginResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT Bearer token
+      required: [access_token]
+    Error:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+        message:
+          type: string
+        error:
+          type: string
+      required: [statusCode, message]

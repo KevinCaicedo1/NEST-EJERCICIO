@@ -1,0 +1,232 @@
+openapi: 3.0.3
+info:
+  title: Movies Service
+  version: 1.0.0
+  description: Servicio de películas (lista pública, detalle con JWT, CRUD admin, endpoint interno para Sync)
+servers:
+  - url: http://localhost:3002
+    description: Dev
+tags:
+  - name: Movies
+    description: Endpoints públicos de películas
+  - name: Internal
+    description: Endpoints internos (no públicos)
+paths:
+  /movies:
+    get:
+      tags: [Movies]
+      summary: Listado paginado de películas (público)
+      operationId: moviesList
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Lista paginada de películas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMovies'
+    post:
+      tags: [Movies]
+      summary: Crear nueva película (solo ADMIN)
+      description: Requiere rol **ADMIN**.
+      operationId: moviesCreate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovieCreate'
+      responses:
+        '201':
+          description: Película creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '401': { description: No autenticado }
+        '403': { description: Prohibido (ADMIN requerido) }
+  /movies/{id}:
+    get:
+      tags: [Movies]
+      summary: Detalle de película (requiere USER o ADMIN)
+      description: Requiere autenticación (USER o ADMIN).
+      operationId: moviesGetOne
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Película encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '401': { description: No autenticado }
+        '404': { description: No encontrada }
+    patch:
+      tags: [Movies]
+      summary: Actualizar película (solo ADMIN)
+      description: Requiere rol **ADMIN**.
+      operationId: moviesUpdate
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovieUpdate'
+      responses:
+        '200':
+          description: Película actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '401': { description: No autenticado }
+        '403': { description: Prohibido (ADMIN requerido) }
+        '404': { description: No encontrada }
+    delete:
+      tags: [Movies]
+      summary: Eliminar película (solo ADMIN)
+      description: Requiere rol **ADMIN**.
+      operationId: moviesDelete
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204': { description: Eliminada }
+        '401': { description: No autenticado }
+        '403': { description: Prohibido (ADMIN requerido) }
+        '404': { description: No encontrada }
+
+  # Endpoint **interno** para Sync → Movies
+  /internal/movies/upsert-from-sync:
+    post:
+      tags: [Internal]
+      summary: Upsert de película proveniente de SWAPI (uso interno)
+      description: Protegido por token interno. No publicar en Swagger público.
+      operationId: moviesUpsertFromSync
+      security:
+        - internalToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertFromSync'
+      responses:
+        '200':
+          description: Upsert realizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '401': { description: Token interno inválido }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    internalToken:
+      type: apiKey
+      in: header
+      name: x-internal-token
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      required: false
+      schema: { type: integer, minimum: 1, default: 1 }
+    LimitParam:
+      name: limit
+      in: query
+      required: false
+      schema: { type: integer, minimum: 1, maximum: 100, default: 10 }
+  schemas:
+    Movie:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        swapiId: { type: integer, nullable: true }
+        title: { type: string }
+        episode_id: { type: integer, nullable: true }
+        opening_crawl: { type: string, nullable: true }
+        director: { type: string, nullable: true }
+        producer: { type: string, nullable: true }
+        release_date: { type: string, format: date, nullable: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+      required: [id, title, createdAt, updatedAt]
+    MovieCreate:
+      type: object
+      required: [title]
+      properties:
+        title: { type: string }
+        episode_id: { type: integer, nullable: true }
+        opening_crawl: { type: string, nullable: true }
+        director: { type: string, nullable: true }
+        producer: { type: string, nullable: true }
+        release_date: { type: string, format: date, nullable: true }
+    MovieUpdate:
+      type: object
+      properties:
+        title: { type: string }
+        episode_id: { type: integer, nullable: true }
+        opening_crawl: { type: string, nullable: true }
+        director: { type: string, nullable: true }
+        producer: { type: string, nullable: true }
+        release_date: { type: string, format: date, nullable: true }
+      additionalProperties: false
+    PaginatedMovies:
+      type: object
+      required: [items, total, page, limit]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Movie' }
+        total: { type: integer, minimum: 0 }
+        page: { type: integer, minimum: 1 }
+        limit: { type: integer, minimum: 1 }
+    UpsertFromSync:
+      type: object
+      required: [swapiId, title]
+      properties:
+        swapiId: { type: integer }
+        title: { type: string }
+        episode_id: { type: integer, nullable: true }
+        opening_crawl: { type: string, nullable: true }
+        director: { type: string, nullable: true }
+        producer: { type: string, nullable: true }
+        release_date: { type: string, format: date, nullable: true }
+    Error:
+      type: object
+      properties:
+        statusCode: { type: integer }
+        message: { type: string }
+        error: { type: string }
+      required: [statusCode, message]

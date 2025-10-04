@@ -1,0 +1,21 @@
+services:
+  movies-postgres:
+    image: postgres:16
+    container_name: movies-postgres
+    environment:
+      POSTGRES_DB: moviesdb
+      POSTGRES_USER: moviesuser
+      POSTGRES_PASSWORD: moviespass
+    ports:
+      - "5433:5432"        # usa 5433 en tu host para no chocar con otros Postgres
+    volumes:
+      - movies_pgdata:/var/lib/postgresql/data
+      - ./db/movies/init:/docker-entrypoint-initdb.d:ro  # ejecuta .sql al primer arranque
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  movies_pgdata:

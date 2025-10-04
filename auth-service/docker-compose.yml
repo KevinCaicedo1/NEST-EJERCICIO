@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: auth-postgres
+    environment:
+      POSTGRES_DB: authdb
+      POSTGRES_USER: authuser
+      POSTGRES_PASSWORD: authpass
+    ports:
+      - "5432:5432"
+    volumes:
+      # Datos persistentes
+      - pgdata:/var/lib/postgresql/data
+      # Scripts de inicialización (todo .sql/.sh aquí se ejecuta en el primer arranque)
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+
+volumes:
+  pgdata:
